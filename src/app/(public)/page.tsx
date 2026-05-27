@@ -8,6 +8,7 @@ export default function Home() {
       {/* ① アイコン・タイトル */}
       <div className="flex flex-col items-center gap-3">
         <div className="w-20 h-20 rounded-3xl bg-primary-light flex items-center justify-center">
+          {/* TODO: アイコン決まり次第差し替え予定 */}
           <svg
             width="36"
             height="36"

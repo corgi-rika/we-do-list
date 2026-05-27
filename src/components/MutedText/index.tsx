@@ -4,6 +4,7 @@ export default function MutedText({
   children,
   size = "sm",
   className,
+  text,
 }: MutedTextProps) {
   let classes = "text-muted";
 
@@ -12,5 +13,5 @@ export default function MutedText({
 
   if (className) classes += " " + className;
 
-  return <p className={classes}>{children}</p>;
+  return <p className={classes}>{text ?? children}</p>;
 }
