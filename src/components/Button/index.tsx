@@ -10,13 +10,14 @@ export default function Button({
   disabled,
   type = "button",
   href,
+  className: extraClassName,
 }: ButtonProps) {
   // 全バリアント共通のクラス
   let className = "inline-flex items-center justify-center rounded-2xl transition-opacity disabled:opacity-50 disabled:cursor-not-allowed";
 
   // 色（variant によって変わる）
   if (variant === "primary")     className += " bg-primary text-white hover:opacity-90";
-  if (variant === "secondary")   className += " bg-beige text-primary hover:opacity-90";
+  if (variant === "secondary")   className += " bg-beige text-foreground hover:opacity-90";
   if (variant === "destructive") className += " bg-red-400 text-white hover:opacity-90";
   if (variant === "ghost")       className += " bg-transparent text-primary hover:bg-primary-light";
 
@@ -27,6 +28,9 @@ export default function Button({
 
   // 横幅いっぱいにするか
   if (fullWidth) className += " w-full";
+
+  // 外から追加クラスが渡された場合
+  if (extraClassName) className += " " + extraClassName;
 
   // href があればリンク、なければボタン
   if (href) {
