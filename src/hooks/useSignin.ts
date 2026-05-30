@@ -29,7 +29,7 @@ export function useSignin() {
       return;
     }
 
-    router.push("/todos");
+    router.push("/groups");
   }
 
   return {
