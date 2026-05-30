@@ -23,7 +23,7 @@ export default function Card({
       <button
         type="button"
         onClick={onClick}
-        className={`${baseClass} w-full text-left active:opacity-75 transition-opacity`}
+        className={`${baseClass} w-full text-left cursor-pointer hover:-translate-y-1 hover:shadow-md active:opacity-75 transition-all`}
       >
         {children}
       </button>
@@ -32,4 +32,3 @@ export default function Card({
 
   return <div className={baseClass}>{children}</div>;
 }
-

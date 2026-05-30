@@ -2,7 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { UserIcon, UserGroupIcon, ClipboardDocumentCheckIcon } from "@heroicons/react/24/outline";
+import {
+  UserIcon,
+  UserGroupIcon,
+  ClipboardDocumentCheckIcon,
+} from "@heroicons/react/24/outline";
 import type { NavItem } from "./type";
 
 // フッターナビゲーションのアイテム定義
@@ -35,9 +39,9 @@ export default function FooterNav() {
           {navItems.map((item) => {
             // アクティブ時とそれ以外でテキスト色だけ変える
             const isActive =
-              pathname === item.href ||
-              pathname.startsWith(item.href + "/");
-            const baseClass = "flex flex-col items-center gap-1 py-3 text-xs font-medium";
+              pathname === item.href || pathname.startsWith(item.href + "/");
+            const baseClass =
+              "flex flex-col items-center gap-1 py-3 text-xs font-medium";
             const colorClass = isActive
               ? "text-primary"
               : "text-gray-400 hover:text-gray-500";
