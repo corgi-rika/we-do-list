@@ -1,5 +1,18 @@
 import { useState } from "react";
+import { z } from "zod";
 import { supabase } from "@/lib/supabase";
+
+const signupSchema = z
+  .object({
+    username: z.string().min(1, "ユーザー名を入力してください"),
+    email: z.string().email("有効なメールアドレスを入力してください"),
+    password: z.string().min(8, "パスワードは8文字以上で入力してください"),
+    passwordConfirm: z.string(),
+  })
+  .refine((data) => data.password === data.passwordConfirm, {
+    message: "パスワードが一致しません",
+    path: ["passwordConfirm"],
+  });
 
 export function useSignup() {
   const [username, setUsername] = useState("");
@@ -12,16 +25,14 @@ export function useSignup() {
   async function handleSubmit() {
     setError("");
 
-    if (!username || !email || !password || !passwordConfirm) {
-      setError("すべての項目を入力してください");
-      return;
-    }
-    if (password.length < 8) {
-      setError("パスワードは8文字以上で入力してください");
-      return;
-    }
-    if (password !== passwordConfirm) {
-      setError("パスワードが一致しません");
+    const result = signupSchema.safeParse({
+      username,
+      email,
+      password,
+      passwordConfirm,
+    });
+    if (!result.success) {
+      setError(result.error.issues[0].message);
       return;
     }
 
