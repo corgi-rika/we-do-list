@@ -70,7 +70,7 @@ export default function GroupDetailPage() {
           <h2 className="font-semibold">カテゴリー</h2>
           <button
             className="text-primary cursor-pointer"
-            onClick={() => router.push("/categories/create")}
+            onClick={() => router.push(`/groups/${id}/categories/new`)}
           >
             <PlusCircleIcon className="w-6 h-6" />
           </button>
@@ -87,7 +87,7 @@ export default function GroupDetailPage() {
       </div>
 
       {/* ToDoを見るボタン */}
-      <Button variant="primary" fullWidth href={`/todos/group/${id}`}>
+      <Button variant="primary" fullWidth href={`/groups/${id}/todos`}>
         ToDoを見る
       </Button>
 
