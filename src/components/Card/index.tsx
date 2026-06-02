@@ -1,3 +1,5 @@
+"use client";
+
 import type { CardProps } from "./type";
 
 export default function Card({
