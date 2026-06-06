@@ -1,5 +1,6 @@
 import Card from "@/components/Card";
 import MutedText from "@/components/MutedText";
+import IconBadge from "@/components/IconBadge";
 import type { FeatureCardProps } from "./type";
 
 export default function FeatureCard({
@@ -9,9 +10,9 @@ export default function FeatureCard({
 }: FeatureCardProps) {
   return (
     <Card padding="md" className="flex items-center gap-4 text-left">
-      <div className="w-14 h-14 rounded-full bg-primary-light shrink-0 flex items-center justify-center">
+      <IconBadge size="md" shape="circle">
         {icon}
-      </div>
+      </IconBadge>
       <div>
         <p className="font-semibold text-foreground">{title}</p>
         {description && <MutedText className="mt-0.5">{description}</MutedText>}
