@@ -4,9 +4,6 @@ import { useState, useCallback } from "react";
 import {
   PlusIcon,
   ArrowRightEndOnRectangleIcon,
-  ArrowPathIcon,
-  DocumentDuplicateIcon,
-  CheckIcon,
 } from "@heroicons/react/24/outline";
 import Button from "@/components/Button";
 import GroupCard from "@/components/GroupCard";
@@ -14,7 +11,7 @@ import GroupEmptyState from "@/components/GroupEmptyState";
 import Modal from "@/components/Modal";
 import Input from "@/components/Input";
 import MutedText from "@/components/MutedText";
-import Card from "@/components/Card";
+import TeamCodeCard from "@/components/TeamCodeCard";
 import { dummyGroups } from "@/dummy/groups";
 import { useRouter } from "next/navigation";
 
@@ -117,35 +114,12 @@ export default function GroupsPage() {
               onChange={setGroupName}
               error={nameError}
             />
-            <div className="rounded-2xl bg-primary-light p-4 flex flex-col gap-3">
-              <Card padding="sm">
-                <div className="flex items-center justify-between">
-                  <span className="text-lg font-bold tracking-widest text-foreground">
-                    {groupCode}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setGroupCode(generateCode())}
-                    className="p-1 rounded-lg text-muted hover:bg-gray-100 transition-colors"
-                  >
-                    <ArrowPathIcon className="w-5 h-5" />
-                  </button>
-                </div>
-              </Card>
-              <Button variant="secondary" fullWidth onClick={handleCopy}>
-                <span className="flex items-center justify-center gap-2">
-                  {copied ? (
-                    <CheckIcon className="w-4 h-4" />
-                  ) : (
-                    <DocumentDuplicateIcon className="w-4 h-4" />
-                  )}
-                  {copied ? "コピーしました" : "コードをコピー"}
-                </span>
-              </Button>
-              <MutedText size="xs">
-                このコードをメンバーに共有してください
-              </MutedText>
-            </div>
+            <TeamCodeCard
+              code={groupCode}
+              copied={copied}
+              onCopy={handleCopy}
+              onRegenerate={() => setGroupCode(generateCode())}
+            />
             <Button variant="primary" fullWidth onClick={handleCreate}>
               グループを作成
             </Button>
