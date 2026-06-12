@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { supabase } from "@/lib/supabase";
 
@@ -15,6 +16,7 @@ const signupSchema = z
   });
 
 export function useSignup() {
+  const router = useRouter();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -49,7 +51,7 @@ export function useSignup() {
       return;
     }
 
-    alert("確認メールを送信しました。メールを確認してください。");
+    router.push("/groups");
   }
 
   return {

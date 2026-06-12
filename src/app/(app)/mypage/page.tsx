@@ -10,23 +10,39 @@ import {
 } from "@heroicons/react/24/outline";
 import Avatar from "@/components/Avatar";
 import Card from "@/components/Card";
-import { dummyMembers } from "@/dummy/members";
 import MutedText from "@/components/MutedText";
 import { dummyGroups } from "@/dummy/groups";
 import { useTodoStore } from "@/store/todoStore";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Modal from "@/components/Modal";
 import Button from "@/components/Button";
-
-const user = dummyMembers[0];
+import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
 
 export default function MypagePage() {
+  const router = useRouter();
   const { todos } = useTodoStore();
   const incompleteCount = todos.filter((t) => !t.completed).length;
   const incompleteDisplay =
     incompleteCount >= 100 ? "100+" : String(incompleteCount);
   const recentCompleted = todos.filter((t) => t.completed).slice(0, 3);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const [userName, setUserName] = useState("");
+  const [userEmail, setUserEmail] = useState("");
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        setUserName(user.user_metadata?.username ?? user.email ?? "");
+        setUserEmail(user.email ?? "");
+      }
+    });
+  }, []);
+
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    router.push("/signin");
+  }
 
   return (
     <div className="flex flex-col gap-6 py-6">
@@ -35,10 +51,10 @@ export default function MypagePage() {
       {/* プロフィール */}
       <Card padding="md">
         <div className="flex items-center gap-4">
-          <Avatar name={user.name} size="lg" />
+          <Avatar name={userName || "？"} size="lg" />
           <div className="flex flex-col gap-1">
-            <p className="font-semibold text-foreground">{user.name}</p>
-            <MutedText>{user.email}</MutedText>
+            <p className="font-semibold text-foreground">{userName}</p>
+            <MutedText>{userEmail}</MutedText>
           </div>
         </div>
       </Card>
@@ -137,7 +153,7 @@ export default function MypagePage() {
               >
                 キャンセル
               </Button>
-              <Button variant="destructive" fullWidth onClick={() => {}}>
+              <Button variant="destructive" fullWidth onClick={handleLogout}>
                 ログアウト
               </Button>
             </div>
