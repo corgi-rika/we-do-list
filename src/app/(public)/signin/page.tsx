@@ -46,11 +46,12 @@ export default function SigninPage() {
         >
           {loading ? "ログイン中..." : "ログイン"}
         </Button>
-        <p className="text-center text-sm text-muted">
+        {/* BE実装後に追加 */}
+        {/* <p className="text-center text-sm text-muted">
           <Link href="/forgot-password" className="text-muted underline">
             パスワードをお忘れの方はこちら
           </Link>
-        </p>
+        </p> */}
         <p className="text-center text-sm text-muted">
           <Link href="/signup" className="text-primary font-medium">
             新規登録はこちら
