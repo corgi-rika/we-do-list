@@ -51,6 +51,7 @@ export function useSignup() {
       return;
     }
 
+    // profiles は DB トリガー (handle_new_user) で自動作成される
     router.push("/groups");
   }
 

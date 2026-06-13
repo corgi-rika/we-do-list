@@ -31,9 +31,14 @@ export default function MypagePage() {
   const [userEmail, setUserEmail] = useState("");
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
       if (user) {
-        setUserName(user.user_metadata?.username ?? user.email ?? "");
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("username")
+          .eq("user_id", user.id)
+          .single();
+        setUserName(profile?.username ?? "");
         setUserEmail(user.email ?? "");
       }
     });
