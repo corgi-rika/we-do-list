@@ -12,7 +12,7 @@ import Modal from "@/components/Modal";
 import Input from "@/components/Input";
 import MutedText from "@/components/MutedText";
 import TeamCodeCard from "@/components/TeamCodeCard";
-import { dummyGroups } from "@/dummy/groups";
+import { useGroups } from "@/hooks/useGroups";
 import { useRouter } from "next/navigation";
 
 function generateCode() {
@@ -21,6 +21,7 @@ function generateCode() {
 
 export default function GroupsPage() {
   const router = useRouter();
+  const { groups, createGroup, error } = useGroups();
 
   // グループ作成
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -52,14 +53,16 @@ export default function GroupsPage() {
     setTimeout(() => setCopied(false), 2000);
   }, [groupCode]);
 
-  const handleCreate = useCallback(() => {
+  const handleCreate = useCallback(async () => {
     if (!groupName.trim()) {
       setNameError("グループ名を入力してください");
       return;
     }
-    // TODO: 作成処理
-    handleCloseCreate();
-  }, [groupName, handleCloseCreate]);
+    const ok = await createGroup(groupName.trim(), groupCode);
+    if (ok) {
+      handleCloseCreate();
+    }
+  }, [groupName, groupCode, createGroup, handleCloseCreate]);
 
   return (
     <div className="flex flex-col gap-6 py-6">
@@ -87,15 +90,15 @@ export default function GroupsPage() {
       </div>
 
       <div className="flex flex-col gap-2">
-        {dummyGroups.length === 0 ? (
+        {groups.length === 0 ? (
           <GroupEmptyState />
         ) : (
           <div className="flex flex-col gap-2">
-            {dummyGroups.map((group) => (
+            {groups.map((group) => (
               <GroupCard
                 key={group.id}
                 name={group.name}
-                memberCount={group.memberCount}
+                memberCount={1}
                 onClick={() => router.push(`/groups/${group.id}`)}
               />
             ))}
@@ -120,6 +123,7 @@ export default function GroupsPage() {
               onCopy={handleCopy}
               onRegenerate={() => setGroupCode(generateCode())}
             />
+            {error && <p className="text-sm text-red-500">{error}</p>}
             <Button variant="primary" fullWidth onClick={handleCreate}>
               グループを作成
             </Button>

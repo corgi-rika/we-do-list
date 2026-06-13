@@ -20,5 +20,20 @@ model profiles {
   createdAt DateTime @default(now()) @db.Timestamptz(6)
   updatedAt DateTime @updatedAt @db.Timestamptz(6)
 
+  ownedGroups groups[]
+
   @@map("profiles")
+}
+
+model groups {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String   @db.VarChar(15)
+  team_code String   @unique @db.VarChar(10)
+  owner_id  String   @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+
+  owner profiles @relation(fields: [owner_id], references: [user_id], onDelete: Cascade)
+
+  @@map("groups")
 }

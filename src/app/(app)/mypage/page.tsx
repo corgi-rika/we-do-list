@@ -11,16 +11,17 @@ import {
 import Avatar from "@/components/Avatar";
 import Card from "@/components/Card";
 import MutedText from "@/components/MutedText";
-import { dummyGroups } from "@/dummy/groups";
 import { useTodoStore } from "@/store/todoStore";
 import { useState, useEffect } from "react";
 import Modal from "@/components/Modal";
 import Button from "@/components/Button";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
+import { useGroups } from "@/hooks/useGroups";
 
 export default function MypagePage() {
   const router = useRouter();
+  const { groups } = useGroups();
   const { todos } = useTodoStore();
   const incompleteCount = todos.filter((t) => !t.completed).length;
   const incompleteDisplay =
@@ -70,7 +71,7 @@ export default function MypagePage() {
         <div className="grid grid-cols-2 gap-3">
           <div className="flex flex-col items-center justify-center rounded-2xl bg-gray-100 p-4 gap-1">
             <span className="text-3xl font-bold text-foreground">
-              {dummyGroups.length}
+              {groups.length}
             </span>
             <MutedText size="xs">参加グループ数</MutedText>
           </div>

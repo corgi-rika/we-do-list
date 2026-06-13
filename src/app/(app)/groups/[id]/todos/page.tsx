@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useParams } from "next/navigation";
 import { ExclamationTriangleIcon, PlusIcon } from "@heroicons/react/24/outline";
-import { dummyGroups } from "@/dummy/groups";
+import { useGroups } from "@/hooks/useGroups";
 import { dummyCategories } from "@/dummy/categories";
 import { useTodoStore } from "@/store/todoStore";
 import { MAX_TODOS_PER_GROUP } from "@/constants/todo";
@@ -19,7 +19,8 @@ const IS_LEADER = true;
 
 export default function GroupTodosPage() {
   const { id } = useParams<{ id: string }>();
-  const group = dummyGroups.find((g) => g.id === id);
+  const { groups } = useGroups();
+  const group = groups.find((g) => g.id === id);
 
   const { todos, addTodo, toggleTodo, deleteTodo } = useTodoStore();
   const groupTodos = todos.filter((t) => t.groupId === id);

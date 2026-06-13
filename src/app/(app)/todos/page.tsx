@@ -2,11 +2,12 @@
 
 import { useRouter } from "next/navigation";
 import GroupCard from "@/components/GroupCard";
-import { dummyGroups } from "@/dummy/groups";
+import { useGroups } from "@/hooks/useGroups";
 import MutedText from "@/components/MutedText";
 
 export default function TodosPage() {
   const router = useRouter();
+  const { groups } = useGroups();
 
   return (
     <div className="flex flex-col gap-6 py-6">
@@ -16,11 +17,11 @@ export default function TodosPage() {
       </div>
 
       <div className="flex flex-col gap-2">
-        {dummyGroups.map((group) => (
+        {groups.map((group) => (
           <GroupCard
             key={group.id}
             name={group.name}
-            memberCount={group.memberCount}
+            memberCount={1}
             onClick={() => router.push(`/groups/${group.id}/todos`)}
           />
         ))}

@@ -12,13 +12,14 @@ import MemberModal from "@/components/MemberModal";
 import CategoryModal from "@/components/CategoryModal";
 import ValidationMessage from "@/components/ValidationMessage";
 import { useCategoryForm } from "@/hooks/useCategoryForm";
-import { dummyGroups } from "@/dummy/groups";
+import { useGroups } from "@/hooks/useGroups";
 import { dummyMembers, type Member } from "@/dummy/members";
 
 export default function GroupDetailPage() {
   const router = useRouter();
   const { id } = useParams<{ id: string }>();
-  const group = dummyGroups.find((g) => g.id === id);
+  const { groups } = useGroups();
+  const group = groups.find((g) => g.id === id);
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
   const {
     categories,

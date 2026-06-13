@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "groups" ALTER COLUMN "id" SET DEFAULT gen_random_uuid(),
+ALTER COLUMN "updatedAt" SET DEFAULT CURRENT_TIMESTAMP;

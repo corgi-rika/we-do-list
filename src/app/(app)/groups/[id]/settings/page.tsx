@@ -12,12 +12,13 @@ import Button from "@/components/Button";
 import Modal from "@/components/Modal";
 import MutedText from "@/components/MutedText";
 import TeamCodeCard from "@/components/TeamCodeCard";
-import { dummyGroups } from "@/dummy/groups";
+import { useGroups } from "@/hooks/useGroups";
 
 export default function GroupSettingsPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const group = dummyGroups.find((g) => g.id === id);
+  const { groups } = useGroups();
+  const group = groups.find((g) => g.id === id);
 
   const [copied, setCopied] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
