@@ -25,7 +25,18 @@ export async function proxy(request: NextRequest) {
     },
   );
 
-  const { data } = await supabase.auth.getUser();
+  let user: Awaited<ReturnType<typeof supabase.auth.getUser>>["data"]["user"] = null;
+  try {
+    const res = await supabase.auth.getUser();
+    user = res.data.user;
+  } catch (err) {
+    // ネットワーク/Fetch エラー時にアプリが例外で止まらないようにする
+    // エラーはサーバーコンソールに出力して、未認証扱いでフォールバックする
+    // (原因診断は下の手順を参照)
+    // eslint-disable-next-line no-console
+    console.error("supabase.auth.getUser failed in proxy:", err);
+    user = null;
+  }
 
   const { pathname } = request.nextUrl;
 
@@ -34,12 +45,12 @@ export async function proxy(request: NextRequest) {
   const isProtected = protectedPaths.some((path) => pathname.startsWith(path));
 
   // 未認証 + 保護ページ → /signin へ
-  if (!data.user && isProtected) {
+  if (!user && isProtected) {
     return NextResponse.redirect(new URL("/signin", request.url));
   }
 
   // 認証済み + /signin or /signup → /groups へ
-  if (data.user && (pathname === "/signin" || pathname === "/signup")) {
+  if (user && (pathname === "/signin" || pathname === "/signup")) {
     return NextResponse.redirect(new URL("/groups", request.url));
   }
 

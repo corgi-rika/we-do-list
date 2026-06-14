@@ -21,7 +21,7 @@ export default function MemberList({ members, onSelect }: MemberListProps) {
           {visibleMembers.map((member) => (
             <MemberAvatar
               key={member.id}
-              name={member.name}
+              name={member.username}
               isLeader={member.isLeader}
               onClick={() => onSelect(member)}
             />

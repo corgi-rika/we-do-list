@@ -1,6 +1,6 @@
-import type { Member } from "@/dummy/members";
+import type { GroupMember } from "@/types/member";
 
 export type MemberModalProps = {
-  member: Member;
+  member: GroupMember;
   onClose: () => void;
 };

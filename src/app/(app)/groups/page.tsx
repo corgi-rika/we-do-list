@@ -21,7 +21,7 @@ function generateCode() {
 
 export default function GroupsPage() {
   const router = useRouter();
-  const { groups, createGroup, error } = useGroups();
+  const { groups, createGroup, joinGroup, error } = useGroups();
 
   // グループ作成
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -64,6 +64,13 @@ export default function GroupsPage() {
     }
   }, [groupName, groupCode, createGroup, handleCloseCreate]);
 
+  const handleJoin = useCallback(async () => {
+    const ok = await joinGroup(joinCode.trim().toUpperCase());
+    if (ok) {
+      handleCloseJoin();
+    }
+  }, [joinCode, joinGroup, handleCloseJoin]);
+
   return (
     <div className="flex flex-col gap-6 py-6">
       <div className="grid grid-cols-2 gap-3">
@@ -98,7 +105,7 @@ export default function GroupsPage() {
               <GroupCard
                 key={group.id}
                 name={group.name}
-                memberCount={1}
+                memberCount={group.memberCount}
                 onClick={() => router.push(`/groups/${group.id}`)}
               />
             ))}
@@ -144,13 +151,14 @@ export default function GroupsPage() {
             <MutedText size="xs">
               グループリーダーから共有されたコードを入力してください
             </MutedText>
+            {error && <p className="text-sm text-red-500">{error}</p>}
             <Button
               variant="primary"
               fullWidth
               disabled={joinCode.trim().length !== 6}
-              onClick={() => {}}
+              onClick={handleJoin}
             >
-              グループを検索
+              グループに参加
             </Button>
           </div>
         </Modal>

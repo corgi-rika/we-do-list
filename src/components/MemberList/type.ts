@@ -1,6 +1,6 @@
-import type { Member } from "@/dummy/members";
+import type { GroupMember } from "@/types/member";
 
 export type MemberListProps = {
-  members: Member[];
-  onSelect: (member: Member) => void;
+  members: GroupMember[];
+  onSelect: (member: GroupMember) => void;
 };

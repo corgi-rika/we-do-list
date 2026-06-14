@@ -4,4 +4,5 @@ export type Group = {
   teamCode: string;
   ownerId: string;
   createdAt: string;
+  memberCount: number;
 };

@@ -13,14 +13,18 @@ import CategoryModal from "@/components/CategoryModal";
 import ValidationMessage from "@/components/ValidationMessage";
 import { useCategoryForm } from "@/hooks/useCategoryForm";
 import { useGroups } from "@/hooks/useGroups";
-import { dummyMembers, type Member } from "@/dummy/members";
+import { useGroupMembers } from "@/hooks/useGroupMembers";
+import type { GroupMember } from "@/types/member";
 
 export default function GroupDetailPage() {
   const router = useRouter();
   const { id } = useParams<{ id: string }>();
   const { groups } = useGroups();
   const group = groups.find((g) => g.id === id);
-  const [selectedMember, setSelectedMember] = useState<Member | null>(null);
+  const { members } = useGroupMembers(id);
+  const [selectedMember, setSelectedMember] = useState<GroupMember | null>(
+    null,
+  );
   const {
     categories,
     isModalOpen,
@@ -46,7 +50,7 @@ export default function GroupDetailPage() {
       />
 
       {/* メンバーカード */}
-      <MemberList members={dummyMembers} onSelect={setSelectedMember} />
+      <MemberList members={members} onSelect={setSelectedMember} />
 
       {/* カテゴリー */}
       <div className="flex flex-col gap-3">
