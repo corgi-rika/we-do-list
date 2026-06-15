@@ -36,6 +36,7 @@ model groups {
 
   owner profiles @relation(fields: [owner_id], references: [user_id], onDelete: Cascade)
   members group_members[]
+  categories categories[]
 
   @@map("groups")
 }
@@ -53,4 +54,16 @@ model group_members {
 
   @@unique([group_id, user_id])
   @@map("group_members")
+}
+
+model categories {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  group_id  String   @db.Uuid
+  name      String   @db.VarChar(15)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+
+  group groups @relation(fields: [group_id], references: [id], onDelete: Cascade)
+
+  @@map("categories")
 }
