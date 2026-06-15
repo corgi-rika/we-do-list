@@ -2,14 +2,11 @@
 
 import { useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import {
-  TrashIcon,
-  ExclamationTriangleIcon,
-} from "@heroicons/react/24/outline";
+import { TrashIcon } from "@heroicons/react/24/outline";
 import PageHeader from "@/components/PageHeader";
 import Card from "@/components/Card";
 import Button from "@/components/Button";
-import Modal from "@/components/Modal";
+import DeleteConfirmModal from "@/components/DeleteConfirmModal";
 import MutedText from "@/components/MutedText";
 import TeamCodeCard from "@/components/TeamCodeCard";
 import { useGroups } from "@/hooks/useGroups";
@@ -81,33 +78,21 @@ export default function GroupSettingsPage() {
 
       {/* 削除確認モーダル */}
       {isDeleteOpen && (
-        <Modal title="グループ削除" onClose={() => setIsDeleteOpen(false)}>
-          <div className="flex flex-col gap-4 p-4">
-            <div className="flex flex-col items-center gap-2 bg-red-50 rounded-2xl p-4">
-              <ExclamationTriangleIcon className="w-8 h-8 text-red-500" />
-              <p className="text-sm font-medium text-red-600">
-                このグループを削除しますか？
-              </p>
-              <p className="text-xs text-red-400 text-center">
+        <DeleteConfirmModal
+          title="グループ削除"
+          message={{
+            title: "このグループを削除しますか？",
+            description: (
+              <>
                 削除すると、グループ内の全てのToDoも削除されます。
                 <br />
                 この操作は取り消せません。
-              </p>
-            </div>
-            <div className="flex gap-3">
-              <Button
-                variant="secondary"
-                fullWidth
-                onClick={() => setIsDeleteOpen(false)}
-              >
-                キャンセル
-              </Button>
-              <Button variant="destructive" fullWidth onClick={handleDelete}>
-                削除する
-              </Button>
-            </div>
-          </div>
-        </Modal>
+              </>
+            ),
+          }}
+          onConfirm={handleDelete}
+          onClose={() => setIsDeleteOpen(false)}
+        />
       )}
     </div>
   );

@@ -10,8 +10,9 @@ import CategoryCard from "@/components/CategoryCard";
 import MemberList from "@/components/MemberList";
 import MemberModal from "@/components/MemberModal";
 import CategoryModal from "@/components/CategoryModal";
+import DeleteConfirmModal from "@/components/DeleteConfirmModal";
 import ValidationMessage from "@/components/ValidationMessage";
-import { useCategoryForm } from "@/hooks/useCategoryForm";
+import { useCategories } from "@/hooks/useCategories";
 import { useGroups } from "@/hooks/useGroups";
 import { useGroupMembers } from "@/hooks/useGroupMembers";
 import type { GroupMember } from "@/types/member";
@@ -25,6 +26,9 @@ export default function GroupDetailPage() {
   const [selectedMember, setSelectedMember] = useState<GroupMember | null>(
     null,
   );
+  const [deletingCategoryId, setDeletingCategoryId] = useState<string | null>(
+    null,
+  );
   const {
     categories,
     isModalOpen,
@@ -35,7 +39,16 @@ export default function GroupDetailPage() {
     openModal,
     closeModal,
     addCategory,
-  } = useCategoryForm();
+    deleteCategory,
+  } = useCategories(id);
+
+  const handleDeleteCategory = async () => {
+    if (!deletingCategoryId) return;
+    const success = await deleteCategory(deletingCategoryId);
+    if (success) {
+      setDeletingCategoryId(null);
+    }
+  };
 
   return (
     <div className="flex flex-col gap-6 py-2">
@@ -66,7 +79,8 @@ export default function GroupDetailPage() {
             <CategoryCard
               key={cat.id}
               name={cat.name}
-              dotColor={cat.dotColor}
+              dotColor={cat.color}
+              onDelete={() => setDeletingCategoryId(cat.id)}
             />
           ))}
         </div>
@@ -92,6 +106,25 @@ export default function GroupDetailPage() {
           error={inputError}
           onSubmit={addCategory}
           onClose={closeModal}
+        />
+      )}
+
+      {/* カテゴリー削除確認モーダル */}
+      {deletingCategoryId && (
+        <DeleteConfirmModal
+          title="カテゴリーを削除"
+          message={{
+            title: "このカテゴリーを削除しますか？",
+            description: (
+              <>
+                削除すると、このカテゴリー内の全てのToDoも削除されます。
+                <br />
+                この操作は取り消せません。
+              </>
+            ),
+          }}
+          onConfirm={handleDeleteCategory}
+          onClose={() => setDeletingCategoryId(null)}
         />
       )}
     </div>

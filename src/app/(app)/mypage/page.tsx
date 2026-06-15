@@ -6,15 +6,13 @@ import {
   BellIcon,
   QuestionMarkCircleIcon,
   ArrowLeftStartOnRectangleIcon,
-  ExclamationTriangleIcon,
 } from "@heroicons/react/24/outline";
 import Avatar from "@/components/Avatar";
 import Card from "@/components/Card";
 import MutedText from "@/components/MutedText";
 import { useTodoStore } from "@/store/todoStore";
 import { useState, useEffect } from "react";
-import Modal from "@/components/Modal";
-import Button from "@/components/Button";
+import DeleteConfirmModal from "@/components/DeleteConfirmModal";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { useGroups } from "@/hooks/useGroups";
@@ -143,28 +141,13 @@ export default function MypagePage() {
       </button>
 
       {isLogoutModalOpen && (
-        <Modal title="ログアウト" onClose={() => setIsLogoutModalOpen(false)}>
-          <div className="flex flex-col gap-4 p-4">
-            <div className="flex flex-col items-center gap-2 bg-red-50 rounded p-4">
-              <ExclamationTriangleIcon className="w-8 h-8 text-red-500" />
-              <p className="text-sm font-medium text-red-600">
-                ログアウトしますか？
-              </p>
-            </div>
-            <div className="flex gap-3">
-              <Button
-                variant="secondary"
-                fullWidth
-                onClick={() => setIsLogoutModalOpen(false)}
-              >
-                キャンセル
-              </Button>
-              <Button variant="destructive" fullWidth onClick={handleLogout}>
-                ログアウト
-              </Button>
-            </div>
-          </div>
-        </Modal>
+        <DeleteConfirmModal
+          title="ログアウト"
+          message={{ title: "ログアウトしますか？" }}
+          confirmLabel="ログアウト"
+          onConfirm={handleLogout}
+          onClose={() => setIsLogoutModalOpen(false)}
+        />
       )}
     </div>
   );

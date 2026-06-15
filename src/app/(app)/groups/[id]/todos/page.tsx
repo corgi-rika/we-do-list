@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 import { useParams } from "next/navigation";
-import { ExclamationTriangleIcon, PlusIcon } from "@heroicons/react/24/outline";
+import { PlusIcon } from "@heroicons/react/24/outline";
 import { useGroups } from "@/hooks/useGroups";
 import { dummyCategories } from "@/dummy/categories";
 import { useTodoStore } from "@/store/todoStore";
 import { MAX_TODOS_PER_GROUP } from "@/constants/todo";
 import PageHeader from "@/components/PageHeader";
 import Modal from "@/components/Modal";
+import DeleteConfirmModal from "@/components/DeleteConfirmModal";
 import Input from "@/components/Input";
 import Button from "@/components/Button";
 import ValidationMessage from "@/components/ValidationMessage";
@@ -114,33 +115,15 @@ export default function GroupTodosPage() {
 
       {/* 削除確認モーダル */}
       {deleteTargetId && (
-        <Modal title="ToDo削除" onClose={() => setDeleteTargetId(null)}>
-          <div className="flex flex-col gap-4 p-4">
-            <div className="flex flex-col items-center gap-2 bg-red-50 rounded p-4">
-              <ExclamationTriangleIcon className="w-8 h-8 text-red-500" />
-              <p className="text-sm font-medium text-red-600">
-                このToDoを削除しますか？
-              </p>
-              <p className="text-xs text-red-400">この操作は取り消せません。</p>
-            </div>
-            <div className="flex gap-3">
-              <Button
-                variant="secondary"
-                fullWidth
-                onClick={() => setDeleteTargetId(null)}
-              >
-                キャンセル
-              </Button>
-              <Button
-                variant="destructive"
-                fullWidth
-                onClick={handleDeleteConfirm}
-              >
-                削除する
-              </Button>
-            </div>
-          </div>
-        </Modal>
+        <DeleteConfirmModal
+          title="ToDo削除"
+          message={{
+            title: "このToDoを削除しますか？",
+            description: "この操作は取り消せません。",
+          }}
+          onConfirm={handleDeleteConfirm}
+          onClose={() => setDeleteTargetId(null)}
+        />
       )}
 
       {/* TODO追加モーダル */}
