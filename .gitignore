@@ -44,3 +44,5 @@ next-env.d.ts
 docs/copilot-context.md
 
 /src/generated/prisma
+
+certificates

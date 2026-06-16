@@ -13,6 +13,7 @@ import Input from "@/components/Input";
 import MutedText from "@/components/MutedText";
 import TeamCodeCard from "@/components/TeamCodeCard";
 import { useGroups } from "@/hooks/useGroups";
+import { copyToClipboard } from "@/lib/clipboard";
 import { useRouter } from "next/navigation";
 
 function generateCode() {
@@ -47,8 +48,8 @@ export default function GroupsPage() {
     setJoinCode("");
   }, []);
 
-  const handleCopy = useCallback(() => {
-    navigator.clipboard.writeText(groupCode);
+  const handleCopy = useCallback(async () => {
+    await copyToClipboard(groupCode);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }, [groupCode]);
