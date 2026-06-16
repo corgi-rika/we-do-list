@@ -21,7 +21,7 @@ export default function TodosPage() {
           <GroupCard
             key={group.id}
             name={group.name}
-            memberCount={1}
+            memberCount={group.memberCount}
             onClick={() => router.push(`/groups/${group.id}/todos`)}
           />
         ))}

@@ -10,6 +10,7 @@ import DeleteConfirmModal from "@/components/DeleteConfirmModal";
 import MutedText from "@/components/MutedText";
 import TeamCodeCard from "@/components/TeamCodeCard";
 import { useGroups } from "@/hooks/useGroups";
+import { copyToClipboard } from "@/lib/clipboard";
 
 export default function GroupSettingsPage() {
   const { id } = useParams<{ id: string }>();
@@ -20,8 +21,8 @@ export default function GroupSettingsPage() {
   const [copied, setCopied] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
-  const handleCopy = useCallback(() => {
-    navigator.clipboard.writeText(group?.teamCode ?? "");
+  const handleCopy = useCallback(async () => {
+    await copyToClipboard(group?.teamCode ?? "");
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }, [group?.teamCode]);
