@@ -10,6 +10,9 @@ const geistSans = Geist({
 export const metadata: Metadata = {
   title: "We Do List",
   description: "家族・パートナー・友人とやることを共有・管理できるToDoアプリ",
+  icons: {
+    icon: "/wedolist-icon.svg",
+  },
 };
 
 export default function RootLayout({
@@ -19,9 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja" className={`${geistSans.variable} h-full antialiased`}>
-      <body className="min-h-full bg-background">
-        {children}
-      </body>
+      <body className="min-h-full bg-background">{children}</body>
     </html>
   );
 }
