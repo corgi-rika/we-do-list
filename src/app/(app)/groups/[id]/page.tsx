@@ -13,15 +13,14 @@ import CategoryModal from "@/components/CategoryModal";
 import DeleteConfirmModal from "@/components/DeleteConfirmModal";
 import ValidationMessage from "@/components/ValidationMessage";
 import { useCategories } from "@/hooks/useCategories";
-import { useGroups } from "@/hooks/useGroups";
+import { useGroup } from "@/hooks/useGroup";
 import { useGroupMembers } from "@/hooks/useGroupMembers";
 import type { GroupMember } from "@/types/member";
 
 export default function GroupDetailPage() {
   const router = useRouter();
   const { id } = useParams<{ id: string }>();
-  const { groups } = useGroups();
-  const group = groups.find((g) => g.id === id);
+  const { group } = useGroup(id);
   const { members } = useGroupMembers(id);
   const [selectedMember, setSelectedMember] = useState<GroupMember | null>(
     null,
@@ -79,7 +78,6 @@ export default function GroupDetailPage() {
             <CategoryCard
               key={cat.id}
               name={cat.name}
-              dotColor={cat.color}
               onDelete={() => setDeletingCategoryId(cat.id)}
             />
           ))}

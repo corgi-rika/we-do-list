@@ -6,6 +6,7 @@ import AuthHeader from "@/components/AuthHeader";
 import Button from "@/components/Button";
 import Card from "@/components/Card";
 import Input from "@/components/Input";
+import ValidationMessage from "@/components/ValidationMessage";
 
 export default function SignupPage() {
   const {
@@ -27,7 +28,7 @@ export default function SignupPage() {
       <AuthHeader subtitle="アカウントを作成" />
 
       <Card padding="lg" className="w-full flex flex-col gap-4">
-        {error && <p className="text-sm text-red-500 text-center">{error}</p>}
+        {error && <ValidationMessage message={error} center />}
         <Input
           label="ユーザー名"
           placeholder="山田太郎"

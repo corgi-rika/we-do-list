@@ -3,10 +3,11 @@
 import { useState } from "react";
 import { useParams } from "next/navigation";
 import { PlusIcon } from "@heroicons/react/24/outline";
-import { useGroups } from "@/hooks/useGroups";
-import { dummyCategories } from "@/dummy/categories";
-import { useTodoStore } from "@/store/todoStore";
-import { MAX_TODOS_PER_GROUP } from "@/constants/todo";
+import { useGroup } from "@/hooks/useGroup";
+import { useCategories } from "@/hooks/useCategories";
+import { useTodos } from "@/hooks/useTodos";
+import { useTodoForm } from "@/hooks/useTodoForm";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import PageHeader from "@/components/PageHeader";
 import Modal from "@/components/Modal";
 import DeleteConfirmModal from "@/components/DeleteConfirmModal";
@@ -15,18 +16,34 @@ import Button from "@/components/Button";
 import ValidationMessage from "@/components/ValidationMessage";
 import AchievementCard from "@/components/AchievementCard";
 import CategoryAccordion from "@/components/CategoryAccordion";
-
-const IS_LEADER = true;
+import CategoryChip from "@/components/CategoryChip";
 
 export default function GroupTodosPage() {
   const { id } = useParams<{ id: string }>();
-  const { groups } = useGroups();
-  const group = groups.find((g) => g.id === id);
+  const { group } = useGroup(id);
 
-  const { todos, addTodo, toggleTodo, deleteTodo } = useTodoStore();
-  const groupTodos = todos.filter((t) => t.groupId === id);
-  const done = groupTodos.filter((t) => t.completed).length;
-  const total = groupTodos.length;
+  const { categories } = useCategories(id);
+  const { todos, addTodo, toggleTodo, deleteTodo } = useTodos(id);
+  const {
+    isAddModalOpen,
+    inputTitle,
+    inputCategoryId,
+    titleError,
+    limitError,
+    setInputTitle,
+    setInputCategoryId,
+    openAddModal,
+    closeAddModal,
+    submit,
+  } = useTodoForm({ todosCount: todos.length, onAdd: addTodo });
+
+  const { user: currentUser } = useCurrentUser();
+
+  const isLeader =
+    currentUser !== null && group?.ownerId === currentUser.userId;
+
+  const done = todos.filter((t) => t.completed).length;
+  const total = todos.length;
 
   // アコーディオン開閉状態
   const [openCategoryId, setOpenCategoryId] = useState<string | null>(null);
@@ -34,42 +51,11 @@ export default function GroupTodosPage() {
   // 削除確認モーダル
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
-  // TODO追加モーダル
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [inputTitle, setInputTitle] = useState("");
-  const [inputCategoryId, setInputCategoryId] = useState(dummyCategories[0].id);
-  const [titleError, setTitleError] = useState("");
-  const [limitError, setLimitError] = useState("");
-
-  const handleToggle = (todoId: string) => {
-    setDeleteTargetId(null);
-    toggleTodo(todoId);
-  };
-
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = async () => {
     if (deleteTargetId) {
-      deleteTodo(deleteTargetId);
+      await deleteTodo(deleteTargetId);
       setDeleteTargetId(null);
     }
-  };
-
-  const handleAdd = () => {
-    setTitleError("");
-    setLimitError("");
-    if (inputTitle.trim() === "") {
-      setTitleError("タイトルを入力してください");
-      return;
-    }
-    const success = addTodo(inputTitle.trim(), inputCategoryId, id);
-    if (!success) {
-      setLimitError(
-        `グループのTODOが上限（${MAX_TODOS_PER_GROUP}件）に達しています`,
-      );
-      return;
-    }
-    setInputTitle("");
-    setInputCategoryId(dummyCategories[0].id);
-    setIsAddModalOpen(false);
   };
 
   return (
@@ -78,8 +64,9 @@ export default function GroupTodosPage() {
         title={group?.name ?? "ToDo"}
         rightAction={
           <button
-            onClick={() => setIsAddModalOpen(true)}
-            className="w-12 h-12 rounded-full bg-primary flex items-center justify-center shadow-md"
+            onClick={() => openAddModal(categories[0]?.id ?? null)}
+            disabled={categories.length === 0}
+            className="w-12 h-12 rounded-full bg-primary flex items-center justify-center shadow-md disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <PlusIcon className="w-6 h-6 text-white" />
           </button>
@@ -93,21 +80,31 @@ export default function GroupTodosPage() {
         total={total}
       />
 
+      {/* 上限エラー */}
+      {limitError && (
+        <div className="mt-3">
+          <ValidationMessage message={limitError} />
+        </div>
+      )}
+
       {/* カテゴリーアコーディオン */}
       <div className="mt-4">
-        {dummyCategories.map((category) => (
+        {categories.map((category) => (
           <CategoryAccordion
             key={category.id}
-            category={category}
-            todos={groupTodos.filter((t) => t.categoryId === category.id)}
+            category={{
+              id: category.id,
+              name: category.name,
+            }}
+            todos={todos.filter((t) => t.categoryId === category.id)}
             isOpen={openCategoryId === category.id}
             onToggleOpen={() =>
               setOpenCategoryId(
                 openCategoryId === category.id ? null : category.id,
               )
             }
-            isLeader={IS_LEADER}
-            onToggleTodo={handleToggle}
+            isLeader={isLeader}
+            onToggleTodo={(todoId) => toggleTodo(todoId)}
             onDeleteTodo={(todoId) => setDeleteTargetId(todoId)}
           />
         ))}
@@ -126,9 +123,9 @@ export default function GroupTodosPage() {
         />
       )}
 
-      {/* TODO追加モーダル */}
+      {/* ToDo追加モーダル */}
       {isAddModalOpen && (
-        <Modal title="ToDoを追加" onClose={() => setIsAddModalOpen(false)}>
+        <Modal title="ToDoを追加" onClose={closeAddModal}>
           <div className="flex flex-col gap-4 p-4">
             <Input
               label="タイトル"
@@ -141,32 +138,17 @@ export default function GroupTodosPage() {
             <div className="flex flex-col gap-1">
               <span className="text-sm text-foreground">カテゴリー</span>
               <div className="flex flex-wrap gap-2">
-                {dummyCategories.map((cat) => (
-                  <button
+                {categories.map((cat) => (
+                  <CategoryChip
                     key={cat.id}
+                    name={cat.name}
+                    selected={inputCategoryId === cat.id}
                     onClick={() => setInputCategoryId(cat.id)}
-                    className={`flex items-center gap-1 px-3 py-1 rounded-full text-sm border ${
-                      inputCategoryId === cat.id
-                        ? "border-primary bg-primary-light"
-                        : "border-gray-300"
-                    }`}
-                  >
-                    <span
-                      style={{
-                        width: "8px",
-                        height: "8px",
-                        borderRadius: "50%",
-                        backgroundColor: cat.dotColor,
-                        flexShrink: 0,
-                      }}
-                    />
-                    {cat.name}
-                  </button>
+                  />
                 ))}
               </div>
             </div>
-            {limitError && <ValidationMessage message={limitError} />}
-            <Button variant="primary" fullWidth onClick={handleAdd}>
+            <Button variant="primary" fullWidth onClick={submit}>
               追加
             </Button>
           </div>

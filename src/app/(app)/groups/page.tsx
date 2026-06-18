@@ -12,8 +12,10 @@ import Modal from "@/components/Modal";
 import Input from "@/components/Input";
 import MutedText from "@/components/MutedText";
 import TeamCodeCard from "@/components/TeamCodeCard";
+import ValidationMessage from "@/components/ValidationMessage";
 import { useGroups } from "@/hooks/useGroups";
-import { copyToClipboard } from "@/lib/clipboard";
+import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
+import { MAX_GROUP_MEMBERS } from "@/constants/group";
 import { useRouter } from "next/navigation";
 
 function generateCode() {
@@ -22,37 +24,67 @@ function generateCode() {
 
 export default function GroupsPage() {
   const router = useRouter();
-  const { groups, createGroup, joinGroup, error } = useGroups();
+  const { groups, createGroup, joinGroup, checkGroupCapacity, error } =
+    useGroups();
 
   // グループ作成
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [groupName, setGroupName] = useState("");
   const [nameError, setNameError] = useState("");
   const [groupCode, setGroupCode] = useState(generateCode);
-  const [copied, setCopied] = useState(false);
+  const { copied, copy, reset: resetCopied } = useCopyToClipboard();
 
   // グループ参加
   const [isJoinOpen, setIsJoinOpen] = useState(false);
   const [joinCode, setJoinCode] = useState("");
+  const [isFull, setIsFull] = useState(false);
+  const [alreadyJoined, setAlreadyJoined] = useState(false);
 
   const handleCloseCreate = useCallback(() => {
     setIsCreateOpen(false);
     setGroupName("");
     setNameError("");
     setGroupCode(generateCode());
-    setCopied(false);
-  }, []);
+    resetCopied();
+  }, [resetCopied]);
 
   const handleCloseJoin = useCallback(() => {
     setIsJoinOpen(false);
     setJoinCode("");
+    setIsFull(false);
+    setAlreadyJoined(false);
   }, []);
 
+  // コード入力時に満員チェック（6桁揃ったら確認）
+  const handleJoinCodeChange = useCallback(
+    async (code: string) => {
+      setJoinCode(code);
+      if (code.trim().length !== 6) {
+        setIsFull(false);
+        setAlreadyJoined(false);
+        return;
+      }
+
+      const normalized = code.trim().toUpperCase();
+
+      // すでに参加しているグループは「満員」ではなく「参加済み」として扱う
+      const joined = groups.some((g) => g.teamCode === normalized);
+      if (joined) {
+        setAlreadyJoined(true);
+        setIsFull(false);
+        return;
+      }
+
+      setAlreadyJoined(false);
+      const { isFull: full } = await checkGroupCapacity(normalized);
+      setIsFull(full);
+    },
+    [checkGroupCapacity, groups],
+  );
+
   const handleCopy = useCallback(async () => {
-    await copyToClipboard(groupCode);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }, [groupCode]);
+    await copy(groupCode);
+  }, [copy, groupCode]);
 
   const handleCreate = useCallback(async () => {
     if (!groupName.trim()) {
@@ -66,11 +98,12 @@ export default function GroupsPage() {
   }, [groupName, groupCode, createGroup, handleCloseCreate]);
 
   const handleJoin = useCallback(async () => {
+    if (isFull || alreadyJoined) return;
     const ok = await joinGroup(joinCode.trim().toUpperCase());
     if (ok) {
       handleCloseJoin();
     }
-  }, [joinCode, joinGroup, handleCloseJoin]);
+  }, [joinCode, isFull, alreadyJoined, joinGroup, handleCloseJoin]);
 
   return (
     <div className="flex flex-col gap-6 py-6">
@@ -131,7 +164,7 @@ export default function GroupsPage() {
               onCopy={handleCopy}
               onRegenerate={() => setGroupCode(generateCode())}
             />
-            {error && <p className="text-sm text-red-500">{error}</p>}
+            {error && <ValidationMessage message={error} />}
             <Button variant="primary" fullWidth onClick={handleCreate}>
               グループを作成
             </Button>
@@ -147,16 +180,24 @@ export default function GroupsPage() {
               label="グループコード"
               placeholder="6桁のコードを入力"
               value={joinCode}
-              onChange={setJoinCode}
+              onChange={handleJoinCodeChange}
             />
             <MutedText size="xs">
               グループリーダーから共有されたコードを入力してください
             </MutedText>
-            {error && <p className="text-sm text-red-500">{error}</p>}
+            {alreadyJoined && (
+              <ValidationMessage message="すでにこのグループに参加しています" />
+            )}
+            {isFull && (
+              <ValidationMessage
+                message={`このグループは現在参加することはできません（満員：${MAX_GROUP_MEMBERS}名）`}
+              />
+            )}
+            {error && <ValidationMessage message={error} />}
             <Button
               variant="primary"
               fullWidth
-              disabled={joinCode.trim().length !== 6}
+              disabled={joinCode.trim().length !== 6 || isFull || alreadyJoined}
               onClick={handleJoin}
             >
               グループに参加

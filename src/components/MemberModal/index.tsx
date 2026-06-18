@@ -1,6 +1,7 @@
 "use client";
 
 import { StarIcon } from "@heroicons/react/24/solid";
+import { EnvelopeIcon } from "@heroicons/react/24/outline";
 import Modal from "@/components/Modal";
 import Avatar from "@/components/Avatar";
 import type { MemberModalProps } from "./type";
@@ -16,6 +17,14 @@ export default function MemberModal({ member, onClose }: MemberModalProps) {
         <span className="text-xl font-bold">{member.username}</span>
 
         <div className="w-full flex flex-col gap-4 px-4">
+          {/* メールアドレス */}
+          {member.email && (
+            <div className="flex items-center gap-3 rounded-2xl p-4 bg-primary-light">
+              <EnvelopeIcon className="w-5 h-5 text-muted shrink-0" />
+              <span className="text-foreground break-all">{member.email}</span>
+            </div>
+          )}
+
           {/* リーダーバッジ */}
           {member.isLeader && (
             <div className="flex items-center justify-center gap-2 rounded-2xl p-4 bg-primary-light">

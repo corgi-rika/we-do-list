@@ -1,8 +1,7 @@
-import type { Category } from "@/dummy/categories";
-import type { Todo } from "@/dummy/todos";
+import type { Todo } from "@/types/todo";
 
 export type CategoryAccordionProps = {
-  category: Category;
+  category: { id: string; name: string };
   todos: Todo[]; // 該当カテゴリのTODO（フィルタ済み）
   isOpen: boolean;
   onToggleOpen: () => void;

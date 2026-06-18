@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  CheckCircleIcon,
   Cog6ToothIcon,
   BellIcon,
   QuestionMarkCircleIcon,
@@ -10,38 +9,24 @@ import {
 import Avatar from "@/components/Avatar";
 import Card from "@/components/Card";
 import MutedText from "@/components/MutedText";
-import { useTodoStore } from "@/store/todoStore";
-import { useState, useEffect } from "react";
+import { useMyTodos } from "@/hooks/useMyTodos";
+import { useState } from "react";
 import DeleteConfirmModal from "@/components/DeleteConfirmModal";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { useGroups } from "@/hooks/useGroups";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 export default function MypagePage() {
   const router = useRouter();
   const { groups } = useGroups();
-  const { todos } = useTodoStore();
-  const incompleteCount = todos.filter((t) => !t.completed).length;
+  const { incompleteCount } = useMyTodos();
   const incompleteDisplay =
     incompleteCount >= 100 ? "100+" : String(incompleteCount);
-  const recentCompleted = todos.filter((t) => t.completed).slice(0, 3);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
-  const [userName, setUserName] = useState("");
-  const [userEmail, setUserEmail] = useState("");
-
-  useEffect(() => {
-    supabase.auth.getUser().then(async ({ data: { user } }) => {
-      if (user) {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("username")
-          .eq("user_id", user.id)
-          .single();
-        setUserName(profile?.username ?? "");
-        setUserEmail(user.email ?? "");
-      }
-    });
-  }, []);
+  const { user } = useCurrentUser();
+  const userName = user?.username ?? "";
+  const userEmail = user?.email ?? "";
 
   async function handleLogout() {
     await supabase.auth.signOut();
@@ -80,28 +65,6 @@ export default function MypagePage() {
             <MutedText size="xs">未完了ToDo数</MutedText>
           </div>
         </div>
-      </Card>
-
-      {/* 最近完了したToDo */}
-      <Card padding="md">
-        <p className="text-sm font-semibold text-foreground mb-3">
-          最近完了したToDo
-        </p>
-        {recentCompleted.length > 0 ? (
-          <div className="flex flex-col gap-2">
-            {recentCompleted.map((todo) => (
-              <div
-                key={todo.id}
-                className="flex items-center gap-3 p-3 rounded-xl bg-gray-50"
-              >
-                <CheckCircleIcon className="w-5 h-5 text-primary shrink-0" />
-                <span className="text-sm text-foreground">{todo.title}</span>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-sm text-muted">完了したToDoはありません</p>
-        )}
       </Card>
 
       {/* 設定メニュー */}

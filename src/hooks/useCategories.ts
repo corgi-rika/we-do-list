@@ -1,26 +1,23 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
-import { categoryColors } from "@/constants/category";
+import { MAX_CATEGORIES } from "@/constants/category";
 import type { Category } from "@/types/category";
 
 // DB から取得した行を Category 型に変換する。
-// 色は配列 categoryColors の並び順（index）から導出する。
 type CategoryRow = {
   id: string;
   name: string;
 };
 
-function toCategory(row: CategoryRow, index: number): Category {
+function toCategory(row: CategoryRow): Category {
   return {
     id: row.id,
     name: row.name,
-    color: categoryColors[index % categoryColors.length],
   };
 }
 
 export function useCategories(groupId: string | undefined) {
   const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -29,34 +26,33 @@ export function useCategories(groupId: string | undefined) {
   const [limitError, setLimitError] = useState("");
 
   // カテゴリー一覧を取得（RLS により同じグループのものだけ返る）
-  const fetchCategories = useCallback(async () => {
-    if (!groupId) {
-      setCategories([]);
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    const { data, error: fetchError } = await supabase
-      .from("categories")
-      .select("id, name")
-      .eq("group_id", groupId)
-      .order("createdAt", { ascending: true });
-    setLoading(false);
+  useEffect(() => {
+    if (!groupId) return;
+    let active = true;
 
-    if (fetchError) {
-      setError(fetchError.message);
-      return;
-    }
-    setCategories((data as CategoryRow[]).map(toCategory));
+    (async () => {
+      const { data, error: fetchError } = await supabase
+        .from("categories")
+        .select("id, name")
+        .eq("group_id", groupId)
+        .order("createdAt", { ascending: true });
+
+      if (!active) return;
+      if (fetchError) {
+        setError(fetchError.message);
+        return;
+      }
+      setCategories((data as CategoryRow[]).map(toCategory));
+    })();
+
+    return () => {
+      active = false;
+    };
   }, [groupId]);
 
-  useEffect(() => {
-    fetchCategories();
-  }, [fetchCategories]);
-
   const openModal = () => {
-    if (categories.length >= categoryColors.length) {
-      setLimitError(`追加できるカテゴリーは${categoryColors.length}個までです`);
+    if (categories.length >= MAX_CATEGORIES) {
+      setLimitError(`追加できるカテゴリーは${MAX_CATEGORIES}個までです`);
       return;
     }
     setLimitError("");
@@ -86,12 +82,9 @@ export function useCategories(groupId: string | undefined) {
       return;
     }
 
-    setCategories((prev) => [
-      ...prev,
-      toCategory(data as CategoryRow, prev.length),
-    ]);
+    setCategories((prev) => [...prev, toCategory(data as CategoryRow)]);
     setIsModalOpen(false);
-  }, [groupId, inputName, categories.length]);
+  }, [groupId, inputName]);
 
   // カテゴリーを削除する
   const deleteCategory = useCallback(
@@ -115,7 +108,6 @@ export function useCategories(groupId: string | undefined) {
 
   return {
     categories,
-    loading,
     error,
     isModalOpen,
     inputName,

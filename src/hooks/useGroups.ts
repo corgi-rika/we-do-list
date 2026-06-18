@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import { getCurrentUser } from "@/lib/auth";
+import { MAX_GROUP_MEMBERS } from "@/constants/group";
 import type { Group } from "@/types/group";
 
 // DB から取得した行を Group 型に変換する
@@ -26,17 +27,14 @@ function toGroup(row: GroupRow): Group {
 
 export function useGroups() {
   const [groups, setGroups] = useState<Group[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   // グループ一覧を取得（RLS により自分が参加しているものだけ返る）
   const fetchGroups = useCallback(async () => {
-    setLoading(true);
     const { data, error: fetchError } = await supabase
       .from("groups")
       .select("id, name, team_code, owner_id, createdAt, group_members(count)")
       .order("createdAt", { ascending: false });
-    setLoading(false);
 
     if (fetchError) {
       setError(fetchError.message);
@@ -46,7 +44,9 @@ export function useGroups() {
   }, []);
 
   useEffect(() => {
-    fetchGroups();
+    (async () => {
+      await fetchGroups();
+    })();
   }, [fetchGroups]);
 
   // グループを作成し、作成者をリーダーとしてメンバー登録する
@@ -129,11 +129,13 @@ export function useGroups() {
 
       if (joinError) {
         // 一意制約違反 = 既に参加済み
-        setError(
-          joinError.code === "23505"
-            ? "すでに参加しています"
-            : joinError.message,
-        );
+        if (joinError.code === "23505") {
+          setError("すでに参加しています");
+        } else if (joinError.message.includes("group_member_limit_exceeded")) {
+          setError(`このグループは満員です（最大${MAX_GROUP_MEMBERS}名）`);
+        } else {
+          setError(joinError.message);
+        }
         return false;
       }
 
@@ -143,5 +145,57 @@ export function useGroups() {
     [fetchGroups],
   );
 
-  return { groups, loading, error, fetchGroups, createGroup, joinGroup };
+  // グループを削除する
+  const deleteGroup = useCallback(async (groupId: string): Promise<boolean> => {
+    setError("");
+    const { error: deleteError } = await supabase
+      .from("groups")
+      .delete()
+      .eq("id", groupId);
+
+    if (deleteError) {
+      setError(deleteError.message);
+      return false;
+    }
+
+    setGroups((prev) => prev.filter((g) => g.id !== groupId));
+    return true;
+  }, []);
+
+  // コードからグループの満員状態を確認する（参加前チェック用）
+  const checkGroupCapacity = useCallback(
+    async (
+      teamCode: string,
+    ): Promise<{ isFull: boolean; memberCount: number; notFound: boolean }> => {
+      // group_members には RLS が掛かっており、未参加ユーザーは人数を数えられない。
+      // SECURITY DEFINER 関数で RLS を回避し、正確な人数を取得する。
+      const { data, error: rpcError } = await supabase.rpc(
+        "group_member_count_by_code",
+        { code: teamCode },
+      );
+
+      // 関数が NULL を返す = コードに該当するグループなし
+      if (rpcError || data === null || data === undefined) {
+        return { isFull: false, memberCount: 0, notFound: true };
+      }
+
+      const memberCount = data as number;
+      return {
+        isFull: memberCount >= MAX_GROUP_MEMBERS,
+        memberCount,
+        notFound: false,
+      };
+    },
+    [],
+  );
+
+  return {
+    groups,
+    error,
+    fetchGroups,
+    createGroup,
+    joinGroup,
+    deleteGroup,
+    checkGroupCapacity,
+  };
 }

@@ -76,9 +76,21 @@ export default function FooterNav() {
       <nav className="w-full max-w-md bg-white border-t border-gray-100 shadow-[0_-2px_8px_rgba(0,0,0,0.05)] pointer-events-auto">
         <ul className="flex">
           {navItems.map((item) => {
-            // 現在のパスがこのナビアイテムと一致するか判定
-            const isActive =
-              pathname === item.href || pathname.startsWith(item.href + "/");
+            // グループ配下の ToDo 一覧（/groups/[id]/todos）は
+            // 「ToDo」タブの行き先なので ToDo を点灯させる
+            const isGroupTodos = /^\/groups\/[^/]+\/todos/.test(pathname);
+
+            let isActive: boolean;
+            if (item.href === "/todos") {
+              isActive = pathname === "/todos" || isGroupTodos;
+            } else if (item.href === "/groups") {
+              isActive =
+                (pathname === "/groups" || pathname.startsWith("/groups/")) &&
+                !isGroupTodos;
+            } else {
+              isActive =
+                pathname === item.href || pathname.startsWith(item.href + "/");
+            }
 
             return (
               <li key={item.href} className="flex-1">

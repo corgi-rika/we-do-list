@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDownIcon } from "@heroicons/react/24/outline";
+import { ChevronDownIcon, TagIcon } from "@heroicons/react/24/outline";
 import Card from "@/components/Card";
 import TodoItem from "@/components/TodoItem";
 import type { CategoryAccordionProps } from "./type";
@@ -27,15 +27,7 @@ export default function CategoryAccordion({
               isOpen ? "rotate-0" : "-rotate-90"
             }`}
           />
-          <span
-            style={{
-              width: "12px",
-              height: "12px",
-              borderRadius: "50%",
-              backgroundColor: category.dotColor,
-              flexShrink: 0,
-            }}
-          />
+          <TagIcon className="w-4 h-4 shrink-0 text-primary" />
           <span className="flex-1 text-left text-sm font-medium text-foreground">
             {category.name}
           </span>

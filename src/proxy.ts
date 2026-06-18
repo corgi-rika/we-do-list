@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function proxy(request: NextRequest) {
-  let response = NextResponse.next({
+  const response = NextResponse.next({
     request: {
       headers: request.headers,
     },
@@ -25,7 +25,8 @@ export async function proxy(request: NextRequest) {
     },
   );
 
-  let user: Awaited<ReturnType<typeof supabase.auth.getUser>>["data"]["user"] = null;
+  let user: Awaited<ReturnType<typeof supabase.auth.getUser>>["data"]["user"] =
+    null;
   try {
     const res = await supabase.auth.getUser();
     user = res.data.user;
@@ -33,7 +34,6 @@ export async function proxy(request: NextRequest) {
     // ネットワーク/Fetch エラー時にアプリが例外で止まらないようにする
     // エラーはサーバーコンソールに出力して、未認証扱いでフォールバックする
     // (原因診断は下の手順を参照)
-    // eslint-disable-next-line no-console
     console.error("supabase.auth.getUser failed in proxy:", err);
     user = null;
   }

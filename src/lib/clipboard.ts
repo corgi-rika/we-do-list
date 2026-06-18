@@ -30,7 +30,6 @@ export async function copyToClipboard(text: string): Promise<void> {
   textarea.setSelectionRange(0, text.length);
 
   // execCommand は非推奨だが、clipboard API 非対応環境のフォールバックとして使用
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
   document.execCommand("copy");
   document.body.removeChild(textarea);
 }

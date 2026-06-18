@@ -17,6 +17,7 @@ model profiles {
   id        String   @id @default(uuid()) @db.Uuid
   user_id   String   @unique @db.Uuid
   username  String   @db.VarChar(20)
+  email     String?  @db.VarChar(255)
   createdAt DateTime @default(now()) @db.Timestamptz(6)
   updatedAt DateTime @updatedAt @db.Timestamptz(6)
 
@@ -37,6 +38,7 @@ model groups {
   owner profiles @relation(fields: [owner_id], references: [user_id], onDelete: Cascade)
   members group_members[]
   categories categories[]
+  todos todos[]
 
   @@map("groups")
 }
@@ -64,6 +66,24 @@ model categories {
   updatedAt DateTime @default(now()) @updatedAt @db.Timestamptz(6)
 
   group groups @relation(fields: [group_id], references: [id], onDelete: Cascade)
+  todos todos[]
 
   @@map("categories")
+}
+
+model todos {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  group_id     String    @db.Uuid
+  category_id  String?   @db.Uuid
+  title        String    @db.VarChar(50)
+  completed    Boolean   @default(false)
+  completed_by String?   @db.Uuid
+  completed_at DateTime? @db.Timestamptz(6)
+  createdAt    DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt    DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
+
+  group    groups      @relation(fields: [group_id], references: [id], onDelete: Cascade)
+  category categories? @relation(fields: [category_id], references: [id], onDelete: Cascade)
+
+  @@map("todos")
 }

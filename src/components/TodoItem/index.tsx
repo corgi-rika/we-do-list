@@ -5,6 +5,7 @@ import {
   TrashIcon,
 } from "@heroicons/react/24/outline";
 import { CheckCircleIcon as CheckCircleIconSolid } from "@heroicons/react/24/solid";
+import MutedText from "@/components/MutedText";
 import type { TodoItemProps } from "./type";
 
 export default function TodoItem({
@@ -27,14 +28,21 @@ export default function TodoItem({
         )}
       </button>
 
-      {/* タイトル */}
-      <span
-        className={`flex-1 text-sm ${
-          todo.completed ? "text-muted line-through" : "text-foreground"
-        }`}
-      >
-        {todo.title}
-      </span>
+      {/* タイトル・完了メッセージ */}
+      <div className="flex-1 min-w-0">
+        <span
+          className={`block text-sm ${
+            todo.completed ? "text-muted line-through" : "text-foreground"
+          }`}
+        >
+          {todo.title}
+        </span>
+        {todo.completed && todo.completedByUsername && (
+          <MutedText size="xs">
+            {todo.completedByUsername}が完了しました
+          </MutedText>
+        )}
+      </div>
 
       {/* 削除ボタン（完了 && リーダーのみ） */}
       {todo.completed && isLeader && (

@@ -1,4 +1,4 @@
-import type { Todo } from "@/dummy/todos";
+import type { Todo } from "@/types/todo";
 
 export type TodoItemProps = {
   todo: Todo;
