@@ -203,11 +203,88 @@ export function useTodos(groupId: string | undefined) {
     return true;
   }, []);
 
+  // 編集用state
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingTodoId, setEditingTodoId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editCategoryId, setEditCategoryId] = useState<string | null>(null);
+  const [editError, setEditError] = useState("");
+
+  // 編集モーダルを開く
+  const openEditModal = (
+    todoId: string,
+    title: string,
+    categoryId: string | null,
+  ) => {
+    setEditingTodoId(todoId);
+    setEditTitle(title);
+    setEditCategoryId(categoryId);
+    setEditError("");
+    setIsEditModalOpen(true);
+  };
+
+  // 編集モーダルを閉じる
+  const closeEditModal = () => {
+    setIsEditModalOpen(false);
+  };
+
+  // TODOを更新する
+  const updateTodo = useCallback(
+    async (
+      todoId: string,
+      newTitle: string,
+      newCategoryId: string | null,
+    ): Promise<boolean> => {
+      if (!newTitle.trim()) {
+        setEditError("タイトルを入力してください");
+        return false;
+      }
+
+      const { error: updateError } = await supabase
+        .from("todos")
+        .update({ title: newTitle.trim(), category_id: newCategoryId })
+        .eq("id", todoId);
+
+      if (updateError) {
+        setEditError(updateError.message);
+        return false;
+      }
+
+      setTodos((prev) =>
+        prev.map((t) =>
+          t.id === todoId
+            ? { ...t, title: newTitle.trim(), categoryId: newCategoryId }
+            : t,
+        ),
+      );
+      setIsEditModalOpen(false);
+      return true;
+    },
+    [],
+  );
+
+  // 統合submit
+  const handleTodoSubmit = async () => {
+    if (editingTodoId) {
+      await updateTodo(editingTodoId, editTitle, editCategoryId);
+    }
+  };
+
   return {
     todos,
     error,
     addTodo,
     toggleTodo,
     deleteTodo,
+    isEditModalOpen,
+    editingTodoId,
+    editTitle,
+    editCategoryId,
+    editError,
+    setEditTitle,
+    setEditCategoryId,
+    openEditModal,
+    closeEditModal,
+    handleTodoSubmit,
   };
 }

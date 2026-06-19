@@ -3,6 +3,7 @@
 import {
   EllipsisHorizontalCircleIcon,
   TrashIcon,
+  PencilIcon,
 } from "@heroicons/react/24/outline";
 import { CheckCircleIcon as CheckCircleIconSolid } from "@heroicons/react/24/solid";
 import MutedText from "@/components/MutedText";
@@ -12,6 +13,7 @@ export default function TodoItem({
   todo,
   isLeader,
   onToggle,
+  onEdit,
   onDelete,
 }: TodoItemProps) {
   return (
@@ -44,15 +46,24 @@ export default function TodoItem({
         )}
       </div>
 
-      {/* 削除ボタン（完了 && リーダーのみ） */}
-      {todo.completed && isLeader && (
-        <button
-          onClick={() => onDelete(todo.id)}
-          className="shrink-0 text-red-400 hover:text-red-600"
-        >
-          <TrashIcon className="w-5 h-5" />
-        </button>
-      )}
+      <div className="flex gap-1 shrink-0">
+        {onEdit && !todo.completed && (
+          <button
+            onClick={() => onEdit(todo.id)}
+            className="shrink-0 text-primary hover:text-primary-dark transition-colors"
+          >
+            <PencilIcon className="w-4 h-4" />
+          </button>
+        )}
+        {todo.completed && isLeader && (
+          <button
+            onClick={() => onDelete(todo.id)}
+            className="shrink-0 text-red-400 hover:text-red-600"
+          >
+            <TrashIcon className="w-5 h-5" />
+          </button>
+        )}
+      </div>
     </div>
   );
 }

@@ -12,6 +12,7 @@ export default function CategoryAccordion({
   onToggleOpen,
   isLeader,
   onToggleTodo,
+  onEditTodo,
   onDeleteTodo,
 }: CategoryAccordionProps) {
   const incompletes = todos.filter((t) => !t.completed);
@@ -47,6 +48,7 @@ export default function CategoryAccordion({
                   todo={todo}
                   isLeader={isLeader}
                   onToggle={onToggleTodo}
+                  onEdit={onEditTodo}
                   onDelete={onDeleteTodo}
                 />
               ))}

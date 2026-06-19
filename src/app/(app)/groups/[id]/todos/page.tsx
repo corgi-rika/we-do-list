@@ -9,21 +9,32 @@ import { useTodos } from "@/hooks/useTodos";
 import { useTodoForm } from "@/hooks/useTodoForm";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import PageHeader from "@/components/PageHeader";
-import Modal from "@/components/Modal";
 import DeleteConfirmModal from "@/components/DeleteConfirmModal";
-import Input from "@/components/Input";
-import Button from "@/components/Button";
 import ValidationMessage from "@/components/ValidationMessage";
 import AchievementCard from "@/components/AchievementCard";
 import CategoryAccordion from "@/components/CategoryAccordion";
-import CategoryChip from "@/components/CategoryChip";
+import TodoFormModal from "@/components/TodoFormModal";
 
 export default function GroupTodosPage() {
   const { id } = useParams<{ id: string }>();
   const { group } = useGroup(id);
 
   const { categories } = useCategories(id);
-  const { todos, addTodo, toggleTodo, deleteTodo } = useTodos(id);
+  const {
+    todos,
+    addTodo,
+    toggleTodo,
+    deleteTodo,
+    isEditModalOpen,
+    editTitle,
+    editCategoryId,
+    editError,
+    setEditTitle,
+    setEditCategoryId,
+    openEditModal,
+    closeEditModal,
+    handleTodoSubmit,
+  } = useTodos(id);
   const {
     isAddModalOpen,
     inputTitle,
@@ -105,6 +116,12 @@ export default function GroupTodosPage() {
             }
             isLeader={isLeader}
             onToggleTodo={(todoId) => toggleTodo(todoId)}
+            onEditTodo={(todoId) => {
+              const todo = todos.find((t) => t.id === todoId);
+              if (todo) {
+                openEditModal(todo.id, todo.title, todo.categoryId);
+              }
+            }}
             onDeleteTodo={(todoId) => setDeleteTargetId(todoId)}
           />
         ))}
@@ -125,34 +142,34 @@ export default function GroupTodosPage() {
 
       {/* ToDo追加モーダル */}
       {isAddModalOpen && (
-        <Modal title="ToDoを追加" onClose={closeAddModal}>
-          <div className="flex flex-col gap-4 p-4">
-            <Input
-              label="タイトル"
-              placeholder="例：掃除機をかける"
-              value={inputTitle}
-              onChange={setInputTitle}
-              error={titleError}
-            />
-            {/* カテゴリー選択 */}
-            <div className="flex flex-col gap-1">
-              <span className="text-sm text-foreground">カテゴリー</span>
-              <div className="flex flex-wrap gap-2">
-                {categories.map((cat) => (
-                  <CategoryChip
-                    key={cat.id}
-                    name={cat.name}
-                    selected={inputCategoryId === cat.id}
-                    onClick={() => setInputCategoryId(cat.id)}
-                  />
-                ))}
-              </div>
-            </div>
-            <Button variant="primary" fullWidth onClick={submit}>
-              追加
-            </Button>
-          </div>
-        </Modal>
+        <TodoFormModal
+          title="ToDoを追加"
+          inputTitle={inputTitle}
+          onChangeTitle={setInputTitle}
+          titleError={titleError}
+          categories={categories}
+          selectedCategoryId={inputCategoryId}
+          onSelectCategory={setInputCategoryId}
+          onSubmit={submit}
+          onClose={closeAddModal}
+          submitLabel="追加"
+        />
+      )}
+
+      {/* ToDo編集モーダル */}
+      {isEditModalOpen && (
+        <TodoFormModal
+          title="ToDoを編集"
+          inputTitle={editTitle}
+          onChangeTitle={setEditTitle}
+          titleError={editError}
+          categories={categories}
+          selectedCategoryId={editCategoryId}
+          onSelectCategory={setEditCategoryId}
+          onSubmit={handleTodoSubmit}
+          onClose={closeEditModal}
+          submitLabel="更新"
+        />
       )}
     </div>
   );

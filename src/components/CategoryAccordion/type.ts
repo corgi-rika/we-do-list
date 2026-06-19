@@ -7,5 +7,6 @@ export type CategoryAccordionProps = {
   onToggleOpen: () => void;
   isLeader: boolean;
   onToggleTodo: (id: string) => void;
+  onEditTodo: (id: string) => void;
   onDeleteTodo: (id: string) => void;
 };
