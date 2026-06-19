@@ -11,9 +11,12 @@ export default function CategoryModal({
   error,
   onSubmit,
   onClose,
+  mode = "create",
 }: CategoryModalProps) {
+  const title = mode === "create" ? "カテゴリーを追加" : "カテゴリーを編集";
+  const buttonLabel = mode === "create" ? "作成" : "更新";
   return (
-    <Modal title="カテゴリーを追加" onClose={onClose}>
+    <Modal title={title} onClose={onClose}>
       <div className="flex flex-col gap-4 p-4">
         <Input
           label="カテゴリー名"
@@ -23,7 +26,7 @@ export default function CategoryModal({
           error={error}
         />
         <Button variant="primary" fullWidth onClick={onSubmit}>
-          作成
+          {buttonLabel}
         </Button>
       </div>
     </Modal>

@@ -4,4 +4,5 @@ export type CategoryModalProps = {
   error: string;
   onSubmit: () => void;
   onClose: () => void;
+  mode?: "create" | "edit";
 };

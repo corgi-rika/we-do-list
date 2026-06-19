@@ -34,10 +34,12 @@ export default function GroupDetailPage() {
     inputName,
     inputError,
     limitError,
+    editingCategoryId,
     setInputName,
-    openModal,
+    openCreateModal,
+    openEditModal,
     closeModal,
-    addCategory,
+    handleCategorySubmit,
     deleteCategory,
   } = useCategories(id);
 
@@ -68,7 +70,10 @@ export default function GroupDetailPage() {
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between">
           <h2 className="font-semibold">カテゴリー</h2>
-          <button className="text-primary cursor-pointer" onClick={openModal}>
+          <button
+            className="text-primary cursor-pointer"
+            onClick={openCreateModal}
+          >
             <PlusCircleIcon className="w-6 h-6" />
           </button>
         </div>
@@ -78,6 +83,7 @@ export default function GroupDetailPage() {
             <CategoryCard
               key={cat.id}
               name={cat.name}
+              onEdit={() => openEditModal(cat.id, cat.name)}
               onDelete={() => setDeletingCategoryId(cat.id)}
             />
           ))}
@@ -102,8 +108,9 @@ export default function GroupDetailPage() {
           inputName={inputName}
           onChange={setInputName}
           error={inputError}
-          onSubmit={addCategory}
+          onSubmit={handleCategorySubmit}
           onClose={closeModal}
+          mode={editingCategoryId ? "edit" : "create"}
         />
       )}
 

@@ -50,17 +50,6 @@ export function useCategories(groupId: string | undefined) {
     };
   }, [groupId]);
 
-  const openModal = () => {
-    if (categories.length >= MAX_CATEGORIES) {
-      setLimitError(`追加できるカテゴリーは${MAX_CATEGORIES}個までです`);
-      return;
-    }
-    setLimitError("");
-    setInputName("");
-    setInputError("");
-    setIsModalOpen(true);
-  };
-
   const closeModal = () => setIsModalOpen(false);
 
   // カテゴリーを追加する
@@ -105,6 +94,69 @@ export function useCategories(groupId: string | undefined) {
     },
     [],
   );
+  // 編集用state
+  const [editingCategoryId, setEditingCategoryId] = useState<
+    string | undefined
+  >();
+
+  // 新規作成モード
+  const openCreateModal = () => {
+    if (categories.length >= MAX_CATEGORIES) {
+      setLimitError(`追加できるカテゴリーは${MAX_CATEGORIES}個までです`);
+      return;
+    }
+    setEditingCategoryId(undefined);
+    setLimitError("");
+    setInputName("");
+    setInputError("");
+    setIsModalOpen(true);
+  };
+
+  // 編集モード
+  const openEditModal = (categoryId: string, categoryName: string) => {
+    setEditingCategoryId(categoryId);
+    setInputName(categoryName);
+    setInputError("");
+    setIsModalOpen(true);
+  };
+
+  // 統合submit（新規 or 編集）
+  const handleCategorySubmit = async () => {
+    if (editingCategoryId) {
+      await updateCategory(editingCategoryId, inputName);
+    } else {
+      await addCategory();
+    }
+  };
+
+  // カテゴリーを更新する
+  const updateCategory = useCallback(
+    async (categoryId: string, newName: string): Promise<boolean> => {
+      if (!newName.trim()) {
+        setInputError("カテゴリー名を入力してください");
+        return false;
+      }
+
+      const { error: updateError } = await supabase
+        .from("categories")
+        .update({ name: newName.trim() })
+        .eq("id", categoryId);
+
+      if (updateError) {
+        setInputError(updateError.message);
+        return false;
+      }
+
+      setCategories((prev) =>
+        prev.map((c) =>
+          c.id === categoryId ? { ...c, name: newName.trim() } : c,
+        ),
+      );
+      setIsModalOpen(false);
+      return true;
+    },
+    [],
+  );
 
   return {
     categories,
@@ -113,10 +165,14 @@ export function useCategories(groupId: string | undefined) {
     inputName,
     inputError,
     limitError,
+    editingCategoryId,
     setInputName,
-    openModal,
+    openCreateModal,
+    openEditModal,
     closeModal,
     addCategory,
     deleteCategory,
+    updateCategory,
+    handleCategorySubmit,
   };
 }
