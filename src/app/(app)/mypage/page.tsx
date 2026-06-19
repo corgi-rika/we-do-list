@@ -67,7 +67,8 @@ export default function MypagePage() {
         </div>
       </Card>
 
-      {/* 設定メニュー */}
+      {/* 設定メニュー 今後実装予定*/}
+      {/*       
       <Card padding="md">
         <div className="flex flex-col divide-y divide-gray-100">
           {[
@@ -91,7 +92,7 @@ export default function MypagePage() {
             </button>
           ))}
         </div>
-      </Card>
+      </Card> */}
 
       {/* ログアウト */}
       <button
