@@ -1,22 +1,16 @@
 import Button from "@/components/Button";
 import FeatureCard from "@/components/FeatureCard";
+import Logo from "@/components/Logo";
 import MutedText from "@/components/MutedText";
-import IconBadge from "@/components/IconBadge";
-import {
-  ClipboardDocumentCheckIcon,
-  UserGroupIcon,
-  KeyIcon,
-  HeartIcon,
-} from "@heroicons/react/24/outline";
+
+import { UserGroupIcon, KeyIcon, HeartIcon } from "@heroicons/react/24/outline";
 
 export default function Home() {
   return (
     <div className="flex flex-col items-center gap-4 py-10 text-center">
       {/* ① アイコン・タイトル */}
       <div className="flex flex-col items-center gap-3">
-        <IconBadge size="lg" shape="rounded">
-          <ClipboardDocumentCheckIcon className="w-9 h-9 text-primary" />
-        </IconBadge>
+        <Logo />
         <h1 className="text-3xl font-bold text-foreground">We Do List</h1>
         <MutedText className="leading-relaxed">
           少人数グループでToDoを

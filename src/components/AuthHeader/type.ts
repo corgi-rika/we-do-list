@@ -1,3 +1,3 @@
 export type AuthHeaderProps = {
-  subtitle: string;
+  subtitle?: string;
 };
