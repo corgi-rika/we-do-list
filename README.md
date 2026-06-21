@@ -84,7 +84,7 @@ https://we-do-list.vercel.app/
 ### 招待コードによるグループ参加
 
 招待コードを入力して、既存のグループに参加できる動作です。
-<img src="https://i.gyazo.com/c5daffdb9c87033a0e8be98965429ecb.gif" alt="タスク作成・完了切り替え" width="600">
+<img src="https://i.gyazo.com/c5daffdb9c87033a0e8be98965429ecb.gif" alt="招待コードによるグループ参加" width="600">
 
 
 ---
@@ -192,7 +192,7 @@ https://we-do-list.vercel.app/
 | ---------- | ---------- | ----------------------------------------------------------------------------------- |
 | Supabase   | -          | 認証・データベース・RLS・クエリ（Supabase Client 経由）                             |
 | PostgreSQL | -          | リレーショナルデータベース                                                          |
-| Prisma     | 7.8.0      | スキーマ定義・マイグレーション管理（クエリ発行には使用せず Supabase Client に委譲） |
+| Prisma     | 7.8.0      | スキーマ定義・マイグレーション管理 |
 
 ### デプロイ・その他
 
@@ -210,7 +210,7 @@ https://we-do-list.vercel.app/
 | Supabase Authentication | メールアドレス・パスワード認証、セッション管理 |
 | Supabase Database       | PostgreSQL によるデータ管理                    |
 | Supabase RLS            | グループ単位のデータアクセス制御               |
-| Vercel                  | アプリケーションのホスティング・CI/CD          |
+| Vercel                  | アプリケーションのホスティング         |
 
 ---
 
@@ -223,14 +223,33 @@ https://we-do-list.vercel.app/
 - Git
 - Supabase アカウント
 
-### セットアップ手順
-
-#### 1. リポジトリをクローン
+### インストール・起動方法
 
 ```bash
 git clone https://github.com/corgi-rika/we-do-list.git
 cd we-do-list
+npm install
 ```
+
+`.env.local` に Supabase の接続情報を設定してください。
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+```
+
+その後、以下のコマンドを実行してください。
+
+```bash
+npx prisma migrate dev
+npm run dev
+```
+
+起動後、`http://localhost:3000` にアクセスしてください。
+
+---
+
 ## 今後実装予定の機能
 
 | 内容 | 理由・補足 |
